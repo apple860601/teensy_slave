@@ -1,0 +1,22 @@
+{
+	"folders": [
+		{
+			"name": "teensy_SPI",
+			"path": "..\\..\\teensy_SPI"
+		},
+		{
+			"name": "teensy_slave",
+			"path": ".."
+		},
+		{
+			"name": "motortest",
+			"path": "..\\..\\motortest"
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"*.html": "html",
+			"*.tpp": "cpp"
+		}
+	}
+}
