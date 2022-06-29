@@ -11,6 +11,10 @@
 		{
 			"name": "motortest",
 			"path": "..\\..\\motortest"
+		},
+		{
+			"name": "motor_test",
+			"path": "..\\..\\motor_test"
 		}
 	],
 	"settings": {

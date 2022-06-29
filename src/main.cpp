@@ -2,7 +2,7 @@
 #include "Encoder.h"
 #include "Arduino.h"
 #include "SPI.h"
-SPI_MSTransfer_T4<&SPI, 0x0001> mySPI;
+SPI_MSTransfer_T4<&SPI, 0x0002> mySPI;
 
 Encoder myEnc1(22, 23);
 Encoder myEnc2(20, 21);
@@ -94,8 +94,8 @@ class motor // 單一馬達的類別
       // Serial.print(mPID);
 
       int pwmValue = fabs(int(pwm));
-      if (pwmValue > 255){
-        pwmValue = 255;
+      if (pwmValue > 128){
+        pwmValue = 128;
       }
       analogWrite(pwmpin,pwmValue);
       digitalWrite(dirpin,dir);
@@ -122,10 +122,20 @@ class motor // 單一馬達的類別
 motor motor1(0 , pins[0]);
 motor motor2(1 , pins[1]);
 motor motor3(2 , pins[2]);
-
+int tt=0;
 void myCB(uint16_t *buffer, uint16_t length, AsyncMST info) {
+  
+  if(millis()-tt>1000){
+    Serial.print(info.packetID);
+    Serial.print(" ");
+    Serial.println(buffer[1]);
+    Serial.println();
+    tt=millis();
+  }
 
-  if(int(info.packetID)==1){
+
+
+  if(int(info.packetID)==2){
       if (buffer[0]==motor1.mPID){
         // motor1.generate_control_signal(buffer[1],true);
         if (motor1.target_angle!=buffer[1]){
@@ -198,7 +208,7 @@ void loop() {
   if ( millis() - t > 1000 ) {
     mySPI.events();
     Serial.print("motor1_integralErrorAngle:");
-    Serial.println(motor1.target_angle);
+    Serial.println(motor1.pwm);
 
     Serial.print("motor1:");
     Serial.print(motor1.Angle);
@@ -245,7 +255,7 @@ void loop() {
   // Serial.println(buf1[0]);
   // Serial.println(buf2[0]);
   // Serial.println(buf3[0]);
-  mySPI.transfer16(buf1, 9, 0);
+  mySPI.transfer16(buf1, 9, 1);
   // mySPI.transfer16(buf2, 3, 0);
   // mySPI.transfer16(buf3, 3, 0);
   // }
