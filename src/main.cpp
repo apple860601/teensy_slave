@@ -2,10 +2,11 @@
 #include "Encoder.h"
 #include "Arduino.h"
 #include "SPI.h"
-SPI_MSTransfer_T4<&SPI, 0x0002> mySPI;
+const int slave_ID=3;
+SPI_MSTransfer_T4<&SPI, slave_ID> mySPI;
 
-Encoder myEnc1(22, 23);
-Encoder myEnc2(20, 21);
+Encoder myEnc1(23, 22);
+Encoder myEnc2(21, 20);
 Encoder myEnc3(19, 18);
 
 int pins[3][5]={  {14,15,16,23,22},
@@ -135,7 +136,7 @@ void myCB(uint16_t *buffer, uint16_t length, AsyncMST info) {
 
 
 
-  if(int(info.packetID)==2){
+  if(int(info.packetID)==slave_ID){
       if (buffer[0]==motor1.mPID){
         // motor1.generate_control_signal(buffer[1],true);
         if (motor1.target_angle!=buffer[1]){
@@ -208,7 +209,9 @@ void loop() {
   if ( millis() - t > 1000 ) {
     mySPI.events();
     Serial.print("motor1_integralErrorAngle:");
-    Serial.println(motor1.pwm);
+    Serial.println(motor1.target_angle);
+    Serial.println(motor2.target_angle);
+    Serial.println(motor3.target_angle);
 
     Serial.print("motor1:");
     Serial.print(motor1.Angle);
@@ -255,7 +258,7 @@ void loop() {
   // Serial.println(buf1[0]);
   // Serial.println(buf2[0]);
   // Serial.println(buf3[0]);
-  mySPI.transfer16(buf1, 9, 1);
+  mySPI.transfer16(buf1, 9, slave_ID-1);
   // mySPI.transfer16(buf2, 3, 0);
   // mySPI.transfer16(buf3, 3, 0);
   // }
