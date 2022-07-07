@@ -2,7 +2,7 @@
 #include "Encoder.h"
 #include "Arduino.h"
 #include "SPI.h"
-const int slave_ID=3;
+const int slave_ID=2;
 SPI_MSTransfer_T4<&SPI, slave_ID> mySPI;
 
 Encoder myEnc1(23, 22);
@@ -103,21 +103,6 @@ class motor // 單一馬達的類別
 
       // return pwmValue;
     }
-
-  //   void get_SPI()
-  //   {
-  //     board.onTransfer(_GET_SPI);
-  //   }
-
-  //   void brake();
-    
-  // private:
-  //   void _GET_SPI(uint16_t *buffer, uint16_t length, AsyncMST info){
-  //     Serial.print(" --> PacketID: "); Serial.println(buffer[0]);
-  //     if (buffer[0] == mPID){
-  //       get_angle(buffer[0]);
-  //     }
-  //   }
 };
 
 motor motor1(0 , pins[0]);
@@ -138,26 +123,23 @@ void myCB(uint16_t *buffer, uint16_t length, AsyncMST info) {
 
   if(int(info.packetID)==slave_ID){
       if (buffer[0]==motor1.mPID){
-        // motor1.generate_control_signal(buffer[1],true);
         if (motor1.target_angle!=buffer[1]){
           motor1.dir=buffer[2];
-          motor1.target_angle=buffer[1]*((-2)*int(buffer[2])+1);
+          motor1.target_angle=(buffer[1]*((-2)*int(buffer[2])+1))/100;
         }
 
       }
       if (buffer[0]==motor2.mPID){
-        // motor2.generate_control_signal(buffer[1],true);
         if(motor2.target_angle!=buffer[1]){
           motor2.dir=buffer[2];
-          motor2.target_angle=buffer[1]*((-2)*int(buffer[2])+1);
+          motor2.target_angle=(buffer[1]*((-2)*int(buffer[2])+1))/100;
         }
 
       }
       if (buffer[0]==motor3.mPID){
-        // motor3.generate_control_signal(buffer[1],true);
         if(motor3.target_angle!=buffer[1]){
           motor3.dir=buffer[2];
-          motor3.target_angle=buffer[1]*((-2)*int(buffer[2])+1);
+          motor3.target_angle=(buffer[1]*((-2)*int(buffer[2])+1))/100;
         }
       }
   }
@@ -218,14 +200,13 @@ void loop() {
     Serial.print(" , ");
     Serial.print("motor1_encoder: ");
     Serial.println(myEnc1.read());
-    // Serial.print(",");
-    // Serial.print("motor2_angle:");
+
     Serial.print("motor2:");
     Serial.print(motor2.Angle);
     Serial.print(" , ");
     Serial.print("motor2_encoder: ");
     Serial.println(myEnc2.read());
-    // Serial.print("motor3_angle:");
+
     Serial.print("motor3:");
     Serial.print(motor3.Angle);
     Serial.print(" , ");
@@ -234,33 +215,10 @@ void loop() {
     Serial.println();
     t = millis();
   }
-    // Serial.print("motor1_angle:");
 
-    // Serial.print("motor1 dir: ");
-    // Serial.print(motor1.target_angle);
-
-    // Serial.print("motor2 dir: ");
-    // Serial.print(motor2.target_angle);
-
-    // Serial.print("motor3 dir: ");
-    // Serial.print(motor3.target_angle);
-
-  //   Serial.print("millis: "); Serial.println(millis());
-  //   Serial.print("MOTOR1: "); Serial.println(myEnc1.read());
-  //   Serial.print("MOTOR2: "); Serial.println(myEnc2.read());
-  //   Serial.print("MOTOR3: "); Serial.println(myEnc3.read());
-  //   Serial.println();
-    
-  // }
   uint16_t buf1[9] = { motor1.mPID ,fabs(motor1.Angle), ( motor1.Angle<0 ),motor2.mPID ,fabs(motor2.Angle), ( motor2.Angle<0 ),motor3.mPID ,fabs(motor3.Angle), ( motor3.Angle<0 )};
-  // uint16_t buf2[3] = { motor2.mPID ,motor2.Angle, ( motor2.Angle<0 )};
-  // uint16_t buf3[3] = { motor3.mPID ,motor3.Angle, ( motor3.Angle<0 )};
-  // Serial.println(buf1[0]);
-  // Serial.println(buf2[0]);
-  // Serial.println(buf3[0]);
+
+
   mySPI.transfer16(buf1, 9, slave_ID-1);
-  // mySPI.transfer16(buf2, 3, 0);
-  // mySPI.transfer16(buf3, 3, 0);
-  // }
 }
 
