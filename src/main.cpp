@@ -2,8 +2,8 @@
 #include "Encoder.h"
 #include "Arduino.h"
 #include "SPI.h"
-const int slave_ID=2;
-SPI_MSTransfer_T4<&SPI, slave_ID> mySPI;
+const int slave_ID=3; //set slave number
+SPI_MSTransfer_T4<&SPI,slave_ID> mySPI;
 
 Encoder myEnc1(23, 22);
 Encoder myEnc2(21, 20);
@@ -125,28 +125,31 @@ void myCB(uint16_t *buffer, uint16_t length, AsyncMST info) {
       if (buffer[0]==motor1.mPID){
         if (motor1.target_angle!=buffer[1]){
           motor1.dir=buffer[2];
-          motor1.target_angle=(buffer[1]*((-2)*int(buffer[2])+1))/100;
+          motor1.target_angle=(buffer[1]*((-2)*int(buffer[2])+1));
+          motor1.target_angle=motor1.target_angle/(pow(10,buffer[3]));
         }
 
       }
       if (buffer[0]==motor2.mPID){
         if(motor2.target_angle!=buffer[1]){
           motor2.dir=buffer[2];
-          motor2.target_angle=(buffer[1]*((-2)*int(buffer[2])+1))/100;
+          motor2.target_angle=(buffer[1]*((-2)*int(buffer[2])+1));
+          motor2.target_angle=motor2.target_angle/(pow(10,buffer[3]));
         }
 
       }
       if (buffer[0]==motor3.mPID){
         if(motor3.target_angle!=buffer[1]){
           motor3.dir=buffer[2];
-          motor3.target_angle=(buffer[1]*((-2)*int(buffer[2])+1))/100;
+          motor3.target_angle=(buffer[1]*((-2)*int(buffer[2])+1));
+          motor3.target_angle=motor3.target_angle/(pow(10,buffer[3]));
         }
       }
   }
 }
 void setup() {
-  Serial.begin(9600);
-  Serial.setTimeout(1); 
+  Serial.begin(115200);
+  // Serial.setTimeout(1); 
   
   pinMode(3, OUTPUT);
   pinMode(4, OUTPUT);
@@ -216,9 +219,10 @@ void loop() {
     t = millis();
   }
 
+  //build transport array
   uint16_t buf1[9] = { motor1.mPID ,fabs(motor1.Angle), ( motor1.Angle<0 ),motor2.mPID ,fabs(motor2.Angle), ( motor2.Angle<0 ),motor3.mPID ,fabs(motor3.Angle), ( motor3.Angle<0 )};
 
-
+  //transport array to master
   mySPI.transfer16(buf1, 9, slave_ID-1);
 }
 

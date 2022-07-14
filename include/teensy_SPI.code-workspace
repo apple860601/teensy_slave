@@ -15,6 +15,10 @@
 		{
 			"name": "motor_test",
 			"path": "..\\..\\motor_test"
+		},
+		{
+			"name": "nodemcu-bu01-test",
+			"path": "..\\..\\nodemcu-bu01-test"
 		}
 	],
 	"settings": {
